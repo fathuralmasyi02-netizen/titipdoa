@@ -10,7 +10,8 @@ import {
   query, 
   orderBy, 
   serverTimestamp, 
-  getDocs 
+  getDocs,
+  deleteDoc
 } from 'firebase/firestore';
 import { 
   getAuth, 
@@ -241,6 +242,26 @@ export async function togglePrayerReadStatus(prayerId: string, isRead: boolean):
       localStorage.setItem('titipan_doa_prayers', JSON.stringify(prayers));
       notifyLocalChange();
     }
+  }
+}
+
+/**
+ * Deletes a prayer request from the database.
+ */
+export async function deletePrayer(prayerId: string): Promise<void> {
+  if (useFirestore && db) {
+    try {
+      const docRef = doc(db, 'prayers', prayerId);
+      await deleteDoc(docRef);
+    } catch (error) {
+      handleFirestoreError(error, OperationType.DELETE, `prayers/${prayerId}`);
+    }
+  } else {
+    // Local DB delete
+    const prayers = getLocalPrayers();
+    const updated = prayers.filter(p => p.id !== prayerId);
+    localStorage.setItem('titipan_doa_prayers', JSON.stringify(updated));
+    notifyLocalChange();
   }
 }
 

@@ -11,10 +11,11 @@ import {
   Clock, 
   CheckCircle,
   Eye, 
-  BookOpen
+  BookOpen,
+  Trash2
 } from 'lucide-react';
 import { Prayer } from '../types';
-import { togglePrayerReadStatus, isUsingFirestore, signInAdmin, signOutAdmin, onAdminStateChanged } from '../lib/firebase';
+import { togglePrayerReadStatus, deletePrayer, isUsingFirestore, signInAdmin, signOutAdmin, onAdminStateChanged } from '../lib/firebase';
 
 interface DashboardAdminProps {
   prayers: Prayer[];
@@ -34,6 +35,9 @@ export default function DashboardAdmin({ prayers }: DashboardAdminProps) {
 
   // Swipe Gestures state
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
+  
+  // Delete configuration state
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState<string | null>(null);
 
   useEffect(() => {
     const unsub = onAdminStateChanged((user) => {
@@ -76,6 +80,16 @@ export default function DashboardAdmin({ prayers }: DashboardAdminProps) {
       await togglePrayerReadStatus(prayerId, !currentStatus);
     } catch (err) {
       console.error('Failed to change read status:', err);
+    }
+  };
+
+  // Delete prayer from DB
+  const handleDelete = async (prayerId: string) => {
+    setIsConfirmingDelete(null);
+    try {
+      await deletePrayer(prayerId);
+    } catch (err) {
+      console.error('Failed to delete prayer:', err);
     }
   };
 
@@ -412,29 +426,60 @@ export default function DashboardAdmin({ prayers }: DashboardAdminProps) {
 
                 {/* Active Controls & Counters inside card */}
                 <div className="border-t border-[#E0DBCF]/40 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-                  {/* Status Indicator */}
+                  {/* Status Indicator / Delete Confirm */}
                   <div className="flex items-center space-x-2">
-                    <button
-                      type="button"
-                      onClick={() => handleToggleRead(currentPrayer.id, currentPrayer.isRead)}
-                      className={`px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer inline-flex items-center gap-2 ${
-                        currentPrayer.isRead
-                          ? 'bg-[#E0DBCF]/30 border border-[#E0DBCF] text-[#8B8B6B]'
-                          : 'bg-[#5A5A40] text-white shadow-sm shadow-[#5A5A40]/10 hover:bg-[#4A4A35]'
-                      }`}
-                    >
-                      {currentPrayer.isRead ? (
-                        <>
-                          <Check className="w-3.5 h-3.5 text-amber-700" />
-                          <span>Tandai Belum Dibaca</span>
-                        </>
-                      ) : (
-                        <>
-                          <CheckCircle className="w-3.5 h-3.5" />
-                          <span>Selesai Dibacakan</span>
-                        </>
-                      )}
-                    </button>
+                    {isConfirmingDelete === currentPrayer.id ? (
+                      <div className="flex items-center gap-1.5 bg-red-50/80 border border-red-100 p-1 rounded-xl">
+                        <span className="text-[10px] font-bold text-red-700 px-2 uppercase tracking-wide">Hapus?</span>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(currentPrayer.id)}
+                          className="bg-red-600 hover:bg-red-700 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-lg transition-all cursor-pointer"
+                        >
+                          Hapus
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setIsConfirmingDelete(null)}
+                          className="bg-white border border-[#E0DBCF] text-gray-700 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-lg transition-all cursor-pointer"
+                        >
+                          Batal
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleToggleRead(currentPrayer.id, currentPrayer.isRead)}
+                          className={`px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer inline-flex items-center gap-2 ${
+                            currentPrayer.isRead
+                              ? 'bg-[#E0DBCF]/30 border border-[#E0DBCF] text-[#8B8B6B]'
+                              : 'bg-[#5A5A40] text-white shadow-sm shadow-[#5A5A40]/10 hover:bg-[#4A4A35]'
+                          }`}
+                        >
+                          {currentPrayer.isRead ? (
+                            <>
+                              <Check className="w-3.5 h-3.5 text-amber-700" />
+                              <span>Tandai Belum Dibaca</span>
+                            </>
+                          ) : (
+                            <>
+                              <CheckCircle className="w-3.5 h-3.5" />
+                              <span>Selesai Dibacakan</span>
+                            </>
+                          )}
+                        </button>
+                        
+                        <button
+                          type="button"
+                          onClick={() => setIsConfirmingDelete(currentPrayer.id)}
+                          className="p-2 bg-red-50 hover:bg-red-100 border border-red-200/50 text-red-600 rounded-xl transition-all cursor-pointer"
+                          title="Hapus Doa"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
                   </div>
 
                   {/* Navigators and indicators */}
