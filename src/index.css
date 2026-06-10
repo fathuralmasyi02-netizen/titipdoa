@@ -1,0 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Martel:wght@300;400;600;700;900&family=Mulish:ital,wght@0,200..1000;1,200..1000&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Martel", Georgia, serif;
+  --font-sans: "Mulish", ui-sans-serif, system-ui, sans-serif;
+}

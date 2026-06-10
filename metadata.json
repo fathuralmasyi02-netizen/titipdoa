@@ -1,0 +1,6 @@
+{
+  "name": "Titipan Doa",
+  "description": "Aplikasi penitipan doa untuk kerabat dan jamaah agar dibacakan di tanah suci Mekkah dan Madinah.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

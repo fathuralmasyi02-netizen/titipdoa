@@ -1,0 +1,44 @@
+{
+  "entities": {
+    "prayer": {
+      "title": "Prayer Request",
+      "description": "A prayer request submitted by users to be read in holy lands.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier of the prayer"
+        },
+        "senderName": {
+          "type": "string",
+          "description": "Name of the sender, defaults to 'Hamba Allah'"
+        },
+        "prayerText": {
+          "type": "string",
+          "description": "The detailed prayer content"
+        },
+        "isRead": {
+          "type": "boolean",
+          "description": "Determines whether the prayer has been read by the admin"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the prayer was created"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the prayer was last updated"
+        }
+      },
+      "required": ["senderName", "prayerText", "isRead", "createdAt"]
+    }
+  },
+  "firestore": {
+    "prayers/{prayerId}": {
+      "schema": "prayer",
+      "description": "Collection of all submitted prayer requests"
+    }
+  }
+}
